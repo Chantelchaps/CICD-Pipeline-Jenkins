@@ -4,31 +4,29 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checkout'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                echo 'Build'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Test'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Docker'
+                sh 'docker build -t nodeapp:v1.0 .'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deploy'
+                script {
+                    if (env.BRANCH_NAME == 'main') {
+                        // Main branch goes to port 3000
+                        sh 'docker rm -f nodemain || true'
+                        sh 'docker run -d --name nodemain -p 3000:3000 nodeapp:v1.0'
+                    } else {
+                        // Dev branch goes to port 3001
+                        sh 'docker rm -f nodedev || true'
+                        sh 'docker run -d --name nodedev -p 3001:3000 nodeapp:v1.0'
+                    }
+                }
             }
         }
     }
