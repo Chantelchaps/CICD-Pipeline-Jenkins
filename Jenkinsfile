@@ -10,23 +10,14 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t nodeapp:v1.0 .'
+                bat 'docker build -t nodemain:v1.0 .'
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    if (env.BRANCH_NAME == 'main') {
-                        // Main branch goes to port 3000
-                        sh 'docker rm -f nodemain || true'
-                        sh 'docker run -d --name nodemain -p 3000:3000 nodeapp:v1.0'
-                    } else {
-                        // Dev branch goes to port 3001
-                        sh 'docker rm -f nodedev || true'
-                        sh 'docker run -d --name nodedev -p 3001:3000 nodeapp:v1.0'
-                    }
-                }
+                bat 'docker rm -f nodemain || exit 0'
+                bat 'docker run -d --name nodemain -p 3000:3000 nodemain:v1.0'
             }
         }
     }
